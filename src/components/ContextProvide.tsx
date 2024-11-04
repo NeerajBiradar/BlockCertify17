@@ -19,7 +19,7 @@ export const ContextProvide : FC<{ children: any }> = ({ children })=> {
     if(localStorage.getItem('token')){
       axios({
         method:'get',
-        url:'http://localhost:3000/api/verify-token',
+        url:'https://blockcertifybackend.onrender.com/api/verify-token',
         headers:{
           'Authorization':localStorage.getItem('token')
         }
@@ -31,7 +31,7 @@ export const ContextProvide : FC<{ children: any }> = ({ children })=> {
           setLoggedIn(false);
         }
         else{
-          
+          console.log("HIII")
           setLoggedIn(true);
           
         }
