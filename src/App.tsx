@@ -14,14 +14,19 @@ import { ContextProvide } from "./components/ContextProvide";
 
 function Main() {
 	const context = useContext(Context12);
-	const loggedIn = context?.loggedIn || false;
+	const loggedIn = context?.loggedIn;
+	const isLoading = context?.loading;
+
+	if (isLoading) {
+		return <div>Loading...</div>;
+	}
 
 	return (
 		<Routes>
 			<Route path="/" element={<Home />} />
 			<Route path="/fetch" element={<FetchAll />} />
-			{/* Use Navigate for redirecting to the login page if not logged in */}
-			<Route path="/generate" 
+			<Route
+				path="/generate"
 				element={
 					loggedIn ? (
 						<ThirdwebProvider>
@@ -30,12 +35,12 @@ function Main() {
 					) : (
 						<Navigate to="/login" />
 					)
-				} 
+				}
 			/>
 			<Route path="/about" element={<About />} />
 			<Route path="/login" element={<LoginForm />} />
-			<Route path="/signup" element={<SignUp />} /> 
-			<Route path="/*" element={<div className="text-center text-2xl"><h1>Page Does not exists</h1></div>}/>
+			<Route path="/signup" element={<SignUp />} />
+			<Route path="/*" element={<div className="text-center text-2xl"><h1>Page Does not exists</h1></div>} />
 		</Routes>
 	);
 }

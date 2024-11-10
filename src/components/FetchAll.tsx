@@ -1,90 +1,166 @@
 import { useReadContract } from "thirdweb/react";
-import { defineChain } from "thirdweb/chains";
-import { getContract } from "thirdweb";
 import { useState } from "react";
-import {client} from "../client"
+import { client, contract } from "../client";
 
 export default function Certificates() {
-  const [signature,setSignature] = useState("");
-  const [final,setFinal] = useState("");
-  const contract = getContract({
-    client,
-    chain: defineChain(59141),
-    address: "0x094542EB1E269915Afd5e924001B2eDfe7d633A0"
-  });
+  const [fetchMethod, setFetchMethod] = useState("signature");
+  const [certificateID, setCertificateID] = useState("");
+  const [signature, setSignature] = useState("");
+  const [final, setFinal] = useState("");
+  const [copiedMessage, setCopiedMessage] = useState("");
 
   const { data, isPending, error } = useReadContract({
-    
     contract,
-    method: "function getCertificatesBySignature(string signature) view returns ((string certificateID, string name, string studentID, string course, string organization, string dateOfIssue, string title)[])",
-    params: [signature],
+    method: fetchMethod === "signature"
+      ? "function getCertificatesBySignature(string signature) view returns ((string certificateID, string name, string studentID, string course, string organization, string dateOfIssue, string publisher, string imageURL)[])"
+      : "function getCertificateByID(string certificateID) view returns ((string certificateID, string name, string studentID, string course, string organization, string dateOfIssue, string publisher, string imageURL))",
+    params: fetchMethod === "signature" ? [signature] : [certificateID]
   });
-  
-
-
 
   const handleUpdateSignature = () => {
-    // Logic to handle signature update can be added here
-    setSignature(final)
+    if (fetchMethod == "signature")
+      setSignature(final)
+    else {
+      setCertificateID(final)
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedMessage("Certificate ID copied!");
+      setTimeout(() => setCopiedMessage(""), 5000);
+    });
   };
 
   return (
-    <div className="min-h-screen bg-black py-10 flex flex-col items-center text-white mt-20">
-      <div className="w-full flex flex-col items-center px-10">
-        <h1 className="text-2xl font-bold mb-6">Fetch Certificate</h1>
-        
-        <div className="flex w-full mb-8 gap-2">
+    <div className="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8" style={{ backgroundColor: "#060B0F", minHeight: "100vh" }}>
+      <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">Fetch Certificate</h2>
+
+      <select
+        value={fetchMethod}
+        onChange={(e) => setFetchMethod(e.target.value)}
+        className="mb-4 bg-[#202d37] text-white rounded-xl py-2 px-3"
+      >
+        <option value="signature">Fetch by Signature</option>
+        <option value="id">Fetch by ID</option>
+      </select>
+
+      {fetchMethod === "signature" ? (
+        <div className="flex w-full max-w-md mb-8 gap-2">
           <input
             type="text"
             value={final}
-            onChange={(e) => setFinal(e.target.value.toUpperCase())}
+            onChange={(e) => setFinal(e.target.value.toLowerCase())}
             placeholder="Enter Signature ID"
-            className="flex-grow border border-gray-300 rounded-lg p-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flex-grow shadow appearance-none rounded-xl w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline bg-[#ffffff1a] backdrop-blur-md border-white transition-transform transform hover:scale-105 focus:ring-2 focus:ring-[#94a3ad]"
           />
           <button
             onClick={handleUpdateSignature}
-            className="px-4 py-2 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition duration-200"
+            className="bg-[#202d37] hover:bg-[#94a3ad] hover:text-[#202d37] text-white py-2 px-4 rounded-xl transition-transform hover:scale-105 focus:outline-none focus:shadow-outline"
           >
             Search
           </button>
         </div>
-
-        <div className="w-full">
-          {isPending && <p className="text-center text-gray-500">Loading...</p>}
-          {error && <p className="text-center text-red-500">An error occurred: {error.message}</p>}
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data && data.length > 0 ? (
-              data.map((certificate, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300 border border-gray-200"
-                >
-                  <h2 className="text-xl font-semibold text-gray-800 mb-3">{certificate.title}</h2>
-                  <p className="text-gray-700 mb-1">
-                    <span className="font-medium">Name:</span> {certificate.name}
-                  </p>
-                  <p className="text-gray-700 mb-1">
-                    <span className="font-medium">Student ID:</span> {certificate.studentID}
-                  </p>
-                  <p className="text-gray-700 mb-1">
-                    <span className="font-medium">Course:</span> {certificate.course}
-                  </p>
-                  <p className="text-gray-700 mb-1">
-                    <span className="font-medium">Organization:</span> {certificate.organization}
-                  </p>
-                  <p className="text-gray-700">
-                    <span className="font-medium">Date of Issue:</span> {certificate.dateOfIssue}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-600 col-span-full">
-                No certificates found.
-              </p>
-            )}
-          </div>
+      ) : (
+        <div className="flex w-full max-w-md mb-8 gap-2">
+          <input
+            type="text"
+            value={final}
+            onChange={(e) => setFinal(e.target.value)}
+            placeholder="Enter Certificate ID"
+            className="flex-grow shadow appearance-none rounded-xl w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline bg-[#ffffff1a] backdrop-blur-md border-white transition-transform transform hover:scale-105 focus:ring-2 focus:ring-[#94a3ad]"
+          />
+          <button
+            onClick={handleUpdateSignature}
+            className="bg-[#202d37] hover:bg-[#94a3ad] hover:text-[#202d37] text-white py-2 px-4 rounded-xl transition-transform hover:scale-105 focus:outline-none focus:shadow-outline"
+          >
+            Search
+          </button>
         </div>
+      )}
+
+      <div className="w-full max-w-4xl">
+
+        {data ? (
+          <>
+            {fetchMethod === "signature" ? (
+              data ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {data.map((certificate, index) => (
+                    <div
+                      key={index}
+                      className="bg-[#ffffff1a] backdrop-blur-md rounded-xl shadow-lg p-6 transition-transform hover:scale-105 text-white"
+                    >
+                      <p className="mb-1">
+                        <span className="font-medium">Certificate ID:</span>
+                        <button onClick={() => copyToClipboard(certificate.certificateID)} className={`underline mx-2 ${copiedMessage === "Certificate ID copied!" ? "text-green-500" : "text-blue-500"}`}>
+                          {copiedMessage === "Certificate ID copied!" ? "Copied" : "Copy"}
+                        </button>
+                      </p>
+
+                      <p className="mb-1">
+                        <span className="font-medium">Name:</span> {certificate.name}
+                      </p>
+                      <p className="mb-1">
+                        <span className="font-medium">Student ID:</span> {certificate.studentID}
+                      </p>
+                      <p className="mb-1">
+                        <span className="font-medium">Course:</span> {certificate.course}
+                      </p>
+                      <p className="mb-1">
+                        <span className="font-medium">Organization:</span> {certificate.organization}
+                      </p>
+                      <p className="mb-1">
+                        <span className="font-medium">Date of Issue:</span> {certificate.dateOfIssue}
+                      </p>
+                      <p className="mb-1">
+                        <span className="font-medium">Publisher:</span> {certificate.publisher}
+                      </p>
+                      <a className="text-blue-500" href={certificate.imageURL} target="_blank" rel="noopener noreferrer">
+                        Certificate URL
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-gray-400 col-span-full">No certificates found.</p>
+              )
+            ) : (
+              <div className="bg-[#ffffff1a] backdrop-blur-md rounded-xl shadow-lg p-6 transition-transform hover:scale-105 text-white">
+                <p className="mb-1">
+                  <span className="font-medium">Certificate ID:</span>
+                  <button onClick={() => copyToClipboard(certificate.certificateID)} className={`underline mx-2 ${copiedMessage === "Certificate ID copied!" ? "text-green-500" : "text-blue-500"}`}>
+                    {copiedMessage === "Certificate ID copied!" ? "Copied" : "Copy"}
+                  </button>
+                </p>
+
+                <p className="mb-1">
+                  <span className="font-medium">Name:</span> {data.name}
+                </p>
+                <p className="mb-1">
+                  <span className="font-medium">Student ID:</span> {data.studentID}
+                </p>
+                <p className="mb-1">
+                  <span className="font-medium">Course:</span> {data.course}
+                </p>
+                <p className="mb-1">
+                  <span className="font-medium">Organization:</span> {data.organization}
+                </p>
+                <p className="mb-1">
+                  <span className="font-medium">Date of Issue:</span> {data.dateOfIssue}
+                </p>
+                <p className="mb-1">
+                  <span className="font-medium">Publisher:</span> {data.publisher}
+                </p>
+                <a className="text-blue-500" href={data.imageURL} target="_blank" rel="noopener noreferrer">
+                  Certificate URL
+                </a>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-center text-gray-400 col-span-full">No certificate found.</p>
+        )}
       </div>
     </div>
   );
