@@ -130,7 +130,7 @@ function Generate() {
             })}
 
             onTransactionConfirmed={((tx) => {
-              console.log(tx)
+              // console.log(tx)
               alert("Certificate generated")
               setSignature("");
               setStname("");

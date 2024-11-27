@@ -28,9 +28,9 @@ export default function Certificates() {
     }
   }, [data]);
 
-  console.log(data)
+  // console.log(data)
   const handleUpdateSignature = () => {
-    console.log(final)
+    // console.log(final)
     if (fetchMethod == "signature")
       setSignature(final)
     else {
