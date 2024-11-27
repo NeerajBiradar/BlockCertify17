@@ -1,5 +1,5 @@
 import { useReadContract } from "thirdweb/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { client, contract } from "../client";
 
 export default function Certificates() {
@@ -8,6 +8,7 @@ export default function Certificates() {
   const [signature, setSignature] = useState("");
   const [final, setFinal] = useState("");
   const [copiedMessage, setCopiedMessage] = useState("");
+  const [certificates, setCertificates] = useState<any[]>([]);
 
   const { data, isPending, error } = useReadContract({
     contract,
@@ -17,7 +18,19 @@ export default function Certificates() {
     params: fetchMethod === "signature" ? [signature] : [certificateID]
   });
 
+  useEffect(() => {
+    if (data) {
+      if (Array.isArray(data)) {
+        setCertificates(data);
+      } else {
+        setCertificates([data]);
+      }
+    }
+  }, [data]);
+
+  console.log(data)
   const handleUpdateSignature = () => {
+    console.log(final)
     if (fetchMethod == "signature")
       setSignature(final)
     else {
@@ -41,7 +54,7 @@ export default function Certificates() {
         onChange={(e) => setFetchMethod(e.target.value)}
         className="mb-4 bg-[#202d37] text-white rounded-xl py-2 px-3"
       >
-        <option value="signature">Fetch by Signature</option>
+        <option value="signature">Fetch by Email</option>
         <option value="id">Fetch by ID</option>
       </select>
 
@@ -81,82 +94,45 @@ export default function Certificates() {
 
       <div className="w-full max-w-4xl">
 
-        {data ? (
+        {certificates.length > 0 ? (
           <>
-            {fetchMethod === "signature" ? (
-              data ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {data.map((certificate, index) => (
-                    <div
-                      key={index}
-                      className="bg-[#ffffff1a] backdrop-blur-md rounded-xl shadow-lg p-6 transition-transform hover:scale-105 text-white"
-                    >
-                      <p className="mb-1">
-                        <span className="font-medium">Certificate ID:</span>
-                        <button onClick={() => copyToClipboard(certificate.certificateID)} className={`underline mx-2 ${copiedMessage === "Certificate ID copied!" ? "text-green-500" : "text-blue-500"}`}>
-                          {copiedMessage === "Certificate ID copied!" ? "Copied" : "Copy"}
-                        </button>
-                      </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {certificates.map((certificate, index) => (
+                <div
+                  key={index}
+                  className="bg-[#ffffff1a] backdrop-blur-md rounded-xl shadow-lg p-6 transition-transform hover:scale-105 text-white"
+                >
+                  <p className="mb-1">
+                    <span className="font-medium">Certificate ID:</span>
+                    <button onClick={() => copyToClipboard(certificate.certificateID)} className={`underline mx-2 ${copiedMessage === "Certificate ID copied!" ? "text-green-500" : "text-blue-500"}`}>
+                      {copiedMessage === "Certificate ID copied!" ? "Copied" : "Copy"}
+                    </button>
+                  </p>
 
-                      <p className="mb-1">
-                        <span className="font-medium">Name:</span> {certificate.name}
-                      </p>
-                      <p className="mb-1">
-                        <span className="font-medium">Student ID:</span> {certificate.studentID}
-                      </p>
-                      <p className="mb-1">
-                        <span className="font-medium">Course:</span> {certificate.course}
-                      </p>
-                      <p className="mb-1">
-                        <span className="font-medium">Organization:</span> {certificate.organization}
-                      </p>
-                      <p className="mb-1">
-                        <span className="font-medium">Date of Issue:</span> {certificate.dateOfIssue}
-                      </p>
-                      <p className="mb-1">
-                        <span className="font-medium">Publisher:</span> {certificate.publisher}
-                      </p>
-                      <a className="text-blue-500" href={certificate.imageURL} target="_blank" rel="noopener noreferrer">
-                        Certificate URL
-                      </a>
-                    </div>
-                  ))}
+                  <p className="mb-1">
+                    <span className="font-medium">Name:</span> {certificate.name}
+                  </p>
+                  <p className="mb-1">
+                    <span className="font-medium">Student ID:</span> {certificate.studentID}
+                  </p>
+                  <p className="mb-1">
+                    <span className="font-medium">Course:</span> {certificate.course}
+                  </p>
+                  <p className="mb-1">
+                    <span className="font-medium">Organization:</span> {certificate.organization}
+                  </p>
+                  <p className="mb-1">
+                    <span className="font-medium">Date of Issue:</span> {certificate.dateOfIssue}
+                  </p>
+                  <p className="mb-1">
+                    <span className="font-medium">Publisher:</span> {certificate.publisher}
+                  </p>
+                  <a className="text-blue-500" href={certificate.imageURL} target="_blank" rel="noopener noreferrer">
+                    Certificate URL
+                  </a>
                 </div>
-              ) : (
-                <p className="text-center text-gray-400 col-span-full">No certificates found.</p>
-              )
-            ) : (
-              <div className="bg-[#ffffff1a] backdrop-blur-md rounded-xl shadow-lg p-6 transition-transform hover:scale-105 text-white">
-                <p className="mb-1">
-                  <span className="font-medium">Certificate ID:</span>
-                  <button onClick={() => copyToClipboard(certificate.certificateID)} className={`underline mx-2 ${copiedMessage === "Certificate ID copied!" ? "text-green-500" : "text-blue-500"}`}>
-                    {copiedMessage === "Certificate ID copied!" ? "Copied" : "Copy"}
-                  </button>
-                </p>
-
-                <p className="mb-1">
-                  <span className="font-medium">Name:</span> {data.name}
-                </p>
-                <p className="mb-1">
-                  <span className="font-medium">Student ID:</span> {data.studentID}
-                </p>
-                <p className="mb-1">
-                  <span className="font-medium">Course:</span> {data.course}
-                </p>
-                <p className="mb-1">
-                  <span className="font-medium">Organization:</span> {data.organization}
-                </p>
-                <p className="mb-1">
-                  <span className="font-medium">Date of Issue:</span> {data.dateOfIssue}
-                </p>
-                <p className="mb-1">
-                  <span className="font-medium">Publisher:</span> {data.publisher}
-                </p>
-                <a className="text-blue-500" href={data.imageURL} target="_blank" rel="noopener noreferrer">
-                  Certificate URL
-                </a>
-              </div>
-            )}
+              ))}
+            </div>
           </>
         ) : (
           <p className="text-center text-gray-400 col-span-full">No certificate found.</p>

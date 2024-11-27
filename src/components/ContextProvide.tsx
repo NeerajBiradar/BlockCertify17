@@ -18,7 +18,7 @@ export const ContextProvide: FC<{ children: ReactNode }> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [institute,setInstitute] = useState("");
+  const [institute, setInstitute] = useState("");
   useEffect(() => {
     const verifyToken = async () => {
       const token = localStorage.getItem('token');
@@ -53,7 +53,7 @@ export const ContextProvide: FC<{ children: ReactNode }> = ({ children }) => {
   }, [loggedIn]);
 
   return (
-    <Context12.Provider value={{ loggedIn, setLoggedIn, loading, setLoading, user, setUser, institute, setInstitute}}>
+    <Context12.Provider value={{ loggedIn, setLoggedIn, loading, setLoading, user, setUser, institute, setInstitute }}>
       {children}
     </Context12.Provider>
   );

@@ -17,7 +17,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="w-full bg-[#060B0F] py-4">
+    <nav className="w-full  bg-[#060B0F] py-4">
       <div className="container mx-auto px-4 flex items-center">
         {/* Hamburger menu for mobile */}
         <div className="md:hidden">
@@ -43,8 +43,8 @@ function Navbar() {
         <div className="flex-grow" />
 
         {/* Desktop menu centered */}
-        <div className="hidden md:flex justify-center space-x-16 flex-grow-0">
-          <Link to="/" className="text-white text-lg">
+        <div className="hidden md:flex justify-center space-x-16 flex-grow-0 pl-20">
+          <Link to="/" className="text-white text-lg pl-20">
             Home
           </Link>
           <Link to="/fetch" className="text-white text-lg">
@@ -90,6 +90,7 @@ function Navbar() {
           )}
         </div>
       </div>
+      
 
       {/* Mobile menu */}
       {isMenuOpen && (
