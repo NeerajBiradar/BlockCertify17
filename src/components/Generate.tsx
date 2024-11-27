@@ -76,7 +76,7 @@ function Generate() {
                           field === "org_name" ? organization :
                             field === "date_of_issue" ? dateOfIssue :
                               field === "image url" ? imageURL :
-                                field === "publisher" ? publisher : context?.email
+                                field === "publisher" ? publisher : context?.institute
                 }
                 onChange={(e) => {
                   if (field === "email") setSignature(e.target.value.toLowerCase());
